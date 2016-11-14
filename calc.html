@@ -1,0 +1,202 @@
+<html>
+
+<head>
+
+</head>
+
+<body>
+	<div id='calc'>
+		<input id='input'>
+		<button id='equals'>=</button>
+		<div id='out'>Output appears here</div>
+		<div id='buttonettes'>
+			<button value='1'>1</button>
+			<button value='2'>2</button>
+			<button value='3'>3</button>
+			<button value='4'>4</button>
+			<button value='5'>5</button>
+		 	<button value='6'>6</button>
+			<button value='7'>7</button>
+			<button value='8'>8</button>
+			<button value='9'>9</button>
+			<button value='0'>0</button>
+			<button value='.'>.</button>
+			<button value='+'>+</button>
+			<button value='-'>-</button>
+			<button value='*'>*</button>
+			<button value='/'>/</button>
+			<button value='^'>^</button>
+		</div>
+			
+		
+		<p>Accepted operators:</p>
+		<ul>
+			<li>+</li>
+			<li>-</li>
+			<li>*</li>
+			<li>/</li>
+			<li>^</li>
+		</ul>
+		<p>This doesn't use eval. This does not accept parenthesis at the moment. ^ is right associative. You can type or use the buttons. It accepts negative numbers.</p>
+		
+	</div>
+
+	<script>
+	
+		document.getElementById('buttonettes').addEventListener('click', stringer);
+		
+		function stringer(e){
+			if(e.target == e.currentTarget){
+				return;
+			}
+			var initVal = document.getElementById('input').value;
+			console.log(e.target);
+			var addVal = e.target.value;
+			console.log(initVal +' '+addVal);
+			document.getElementById('input').value= initVal+addVal;
+		}
+	
+		document.getElementById('equals').addEventListener('click', calculate);
+		
+		
+		function calculate(){
+		
+		var calcString  = document.getElementById('input').value;
+		var calcArray = calcString.match(/(\*|\^|\/|\-|\+|\d+\.\d+|\d+)/g);
+		console.log(calcArray);
+		
+			if (calcString.match(/([\.\*\^\/\-\+][\.\*\^\/\+])/)){
+				document.getElementById('out').innerHTML='Operator error';
+				return calcString.match(/([\.\*\^\/\-\+][\.\*\^\/\+])/);
+			} else if (calcString.match(/^[\.\*\^\/\+]|[\.\*\^\/\-\+]$/)){
+				document.getElementById('out').innerHTML='First and last character must be numeric';
+				return;
+			} else if (calcString.match(/([^\.\*\^\/\-\+\d+])/)){
+				document.getElementById('out').innerHTML='These Characters are not accepted: '+calcString.match(/([^\.\*\^\/\-\+\d+])/g).toString();
+				return;
+			}	else if(calcString.match(/^\-\-/)){
+				document.getElementById('out').innerHTML='Bad input';
+				return;
+			}
+		
+	
+		
+		
+		
+		//concat all munis operators before a numeric string: skip first '-' if '-','-'
+		
+		for(var j=0; j<calcArray.length; j++){
+			if (/\-/.test(calcArray[j]) && /\-/.test(calcArray[j+1])){
+				console.log('skip minus')
+			} else if (/\-/.test(calcArray[j])){
+				var valA = calcArray[j+1];
+				var product = '-' + valA;
+				calcArray.splice(j,2,product);
+				console.log('no skip minus');
+			}
+			console.log(calcArray);
+		}
+		
+		console.log(calcArray);
+			
+		while (calcArray.lastIndexOf('^') !== -1){
+		
+			var ind = calcArray.lastIndexOf('^');
+			var valA = calcArray[ind-1];
+			var valB = calcArray[ind+1];
+			var product = power(valA, valB);
+			calcArray.splice((ind-1),3,product)
+			}
+		
+		while (calcArray.indexOf('/') !== -1){
+		
+			var ind = calcArray.indexOf('/');
+			var valA = calcArray[ind-1];
+			var valB = calcArray[ind+1];
+			var product = divide(valA, valB);
+			calcArray.splice((ind-1),3,product)
+			}
+		
+		while (calcArray.indexOf('*') !== -1){
+		
+			var ind = calcArray.indexOf('*');
+			var valA = calcArray[ind-1];
+			var valB = calcArray[ind+1];
+			var product = multiply(valA, valB);
+			calcArray.splice((ind-1),3,product)
+			}
+			
+		console.log(calcArray);
+		
+			
+		while (calcArray.indexOf('-') !== -1){
+		
+			var ind = calcArray.indexOf('-');
+			var valA = parseFloat(calcArray[ind-1]);
+			var valB = parseFloat(calcArray[ind+1]);
+			console.log(calcArray+' '+ind+' ' +valA+' ' +valB +' look here')
+			var product = sub(valA, valB);
+			console.log(valA-valB)
+			calcArray.splice((ind-1),3,Number(Math.round(product+'e15')+'e-15'))
+			}
+			
+		
+		//this handles left over negative numbers
+		
+		for(var i=1; i<calcArray.length; i++){
+	
+			console.log(i+'mm '+calcArray[i]);
+			if (/(^\-)\d+/.test(calcArray[i])){
+				console.log(calcArray[i]);
+				var ind = i;
+				var valA= parseFloat(calcArray[ind]);
+				var valB = parseFloat(calcArray[ind-1]);
+				var product = add(valA, valB);
+				console.log(valA +' '+valB+' '+product);
+				calcArray.splice((ind-1),2,Number(Math.round(product+'e15')+'e-15'))
+				i--;
+			}
+			if (calcArray[i+1]== undefined){
+				break;
+			}
+			console.log(calcArray);
+			if(i=100){break;}
+		}
+		
+		while (calcArray.indexOf('+') !== -1){
+		
+			var ind = calcArray.indexOf('+');
+			var valA = parseFloat(calcArray[ind-1]);
+			var valB = parseFloat(calcArray[ind+1]);
+			var product = add(valA, valB);
+			calcArray.splice((ind-1),3,Number(Math.round(product+'e15')+'e-15'))
+			}
+			
+		document.getElementById('out').innerHTML= calcArray.toString()
+		}
+		
+		
+		
+		
+		
+		
+			function add(a,b){
+				return a + b;
+			}
+			function sub(a,b){
+				return a - b;
+			}
+			function multiply(a,b){
+				return a * b;
+			}
+			function divide(a,b){
+				return a / b;
+			}
+			function power(a,b){
+				return Math.pow(a,b);
+			}
+	
+	</script>
+	
+	
+</body>
