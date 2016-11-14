@@ -26,6 +26,7 @@
 			<button value='*'>*</button>
 			<button value='/'>/</button>
 			<button value='^'>^</button>
+			<button value='c'>clear</button>
 		</div>
 			
 		
@@ -47,6 +48,10 @@
 		
 		function stringer(e){
 			if(e.target == e.currentTarget){
+				return;
+			}
+			if(e.target.value ==='c'){
+				document.getElementById('input').value= '';
 				return;
 			}
 			var initVal = document.getElementById('input').value;
